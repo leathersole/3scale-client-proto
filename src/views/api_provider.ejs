@@ -1,0 +1,378 @@
+<!-- views/api_provider.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="3scale client examples">
+    <title>API Provider</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/base-min.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body onload="restoreInfoFromSession()">
+    <h1>3scale OIDC flow example for API Provider</h1>
+    <h2>As an API Provider...</h2>
+    <div>
+        <div id="api_provider_section" class="pure-g focused">
+            <div id="api_provider_access_info" class="pure-u-1-2">
+                <h3>Enter API Provider Information</h3>
+                <p><label>URL:</label> <input type="text" id="url"><br>example: https://user-admin.3scale.net</p>
+                <p><label>Access Token:</label> <input type="text" id="token"></p>
+                <button id="get_service_list" onclick="getServiceList()">Get Service List</button>
+            </div>
+            <div id="api_provider_info" class="pure-u-1-2"></div>
+        </div>
+        <div id="api_provider_service_list_section" class="pure-g">
+            <div id="api_provider_service_list" class="pure-u-1-2">
+                <h3>Select Product</h3>
+                <div id="serviceList"></div>
+                <button id="use_this_product" onclick="getProxyConfigLatest('sandbox')">Use this product</button>
+            </div>
+            <div id="api_provider_service_info" class="pure-u-1-2"></div>
+        </div>
+    </div>
+    <h2>As an API Developer...</h2>
+    <div id="api_developer_section" class="pure-g">
+        <div id="application_list_section" class="pure-u-1-2">
+            <div id="api_developer_app_list">
+                <h3>Select Application</h3>
+                <div id="appList"></div>
+                <button id="use_this_application" onclick="selectApplication()">Use this application</button>
+            </div>
+        </div>
+        <div id="application_info" class="pure-u-1-2"></div>
+    </div>
+    <h2>As an End user...</h2>
+    <div id="end_user_section">
+
+        <div id="end_user_oidc_login" class="pure-g">
+            <div class="pure-u-1-2">
+                <h3>Login to IdP</h3>
+                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" value="Login">
+                </form>
+                <p>for now, supported flow is &quot;Authorization Code Flow&quot; only.</p>
+            </div>
+            <div id="oidc_response" class="pure-u-1-2"></div>
+        </div>
+        <div id="end_user_call_3scale" class="pure-g">
+            <div class="pure-u-1-2">
+                <h3>Call 3scale Gateway</h3>
+                <button id="call_3scale_gateway" onclick="call3scaleGateway()">Submit</button>
+                <p>for now, supported method/path is &quot;GET /&quot; only. Supported environment is staging(sandbox)
+                    only.</p>
+            </div>
+            <div id="gateway_response" class="pure-u-1-2"></div>
+        </div>
+    </div>
+    <div id="next_step_section">
+        <h2>Next steps...</h2>
+        (Not implemented) Export client information, oidc authentication and call to 3scale gateway as a Postman script:
+        <button disabled>submit</button>
+    </div>
+
+    <script type="text/javascript">
+
+        function getServiceList() {
+            document.getElementById("get_service_list").disabled = true;
+            var apiProviderSection = document.getElementById("api_provider_section");
+            apiProviderSection.classList.add("set");
+            apiProviderSection.classList.remove("focused");
+            document.getElementById("api_provider_service_list_section").classList.add("focused")
+            var url = document.getElementById("url").value;
+            var token = document.getElementById("token").value;
+            var destination = "/admin/api/services.json?url=" + url + "&access_token=" + token;
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json);
+                    createProductList(json);
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function getProxyConfigLatest(environment) {
+            document.getElementById("use_this_product").disabled = true;
+            var serviceListSection = document.getElementById("api_provider_service_list_section");
+            serviceListSection.classList.add("set");
+            serviceListSection.classList.remove("focused");
+            document.getElementById("api_developer_section").classList.add("focused");
+
+
+            var list = document.getElementById("serviceMenu");
+            var serviceId = list.value;
+            var destination = "/admin/api/services/" + serviceId + "/proxy/configs/" + environment + "/latest.json";
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json);
+                    showServiceInfo(json);
+                    checkPorductConfigLatest(json);
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function getApplicationList() {
+            var list = document.getElementById("serviceMenu");
+            var serviceId = list.value;
+            var destination = "/admin/api/applications.json?service_id=" + serviceId;
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    createApplicationList(json)
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function selectApplication() {
+            document.getElementById("use_this_application").disabled = true;
+            var apiDeveloperSection = document.getElementById("api_developer_section");
+            apiDeveloperSection.classList.add("set");
+            apiDeveloperSection.classList.remove("focused");
+            document.getElementById("end_user_section").classList.add("focused");
+
+            var list = document.getElementById("appMenu");
+            var appId = list.value;
+            var destination = "/api/application/" + appId;
+            fetch(destination, { method: 'PUT' }).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    showApplicationInfo(json)
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function call3scaleGateway() {
+            var destination = "/api_provider/3scale_gateway";
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    show3scaleGatewayResponse(json)
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function createProductList(json) {
+            var products = json.services.map(obj => { return { id: obj.service.id, name: obj.service.name } })
+            var serviceListDiv = document.getElementById("serviceList");
+
+            var serviceList = document.createElement("select");
+            serviceList.setAttribute("id", "serviceMenu");
+            serviceListDiv.appendChild(serviceList);
+
+            for (var i = 0; i < products.length; i++) {
+                var option = document.createElement("option");
+                option.setAttribute("value", products[i].id);
+                option.text = products[i].name + " (" + products[i].id + ")";
+                serviceList.appendChild(option);
+            }
+        }
+
+        function checkPorductConfigLatest(json) {
+            if (json.proxy_config.content.proxy.authentication_method === 'oidc' || json.proxy_config.content.backend_version === 'oidc') {
+                // TODO: show OIDC information
+            } else {
+                // TODO: show unsupported message.
+            }
+            getApplicationList();
+        }
+
+        // create a menu to select OIDC flow
+        // function configureOidc(json){
+
+        // }
+
+        function createApplicationList(json) {
+            var apps = json.applications.map(obj => { return { id: obj.application.id, name: obj.application.name } })
+            var appListDiv = document.getElementById("appList");
+
+            var appList = document.createElement("select");
+            appList.setAttribute("id", "appMenu");
+            appListDiv.appendChild(appList);
+            for (var i = 0; i < apps.length; i++) {
+                var option = document.createElement("option");
+                option.setAttribute("value", apps[i].id);
+                option.text = apps[i].name + " (" + apps[i].id + ")";
+                appList.appendChild(option);
+            }
+        }
+
+        // function showProviderInfo(json){
+        //     //api_provider_info
+        // }
+
+        function showServiceInfo(json) {
+            var service = json.proxy_config.content;
+            var issuer = service.proxy.oidc_issuer_endpoint
+            var url = issuer.substring(0, issuer.indexOf(':')) + "://" + issuer.substring(issuer.indexOf('@') + 1);
+            var providerInfoDiv = document.getElementById("api_provider_service_info");
+            var providerInfo = document.createElement("ul");
+            var li = document.createElement("li"); li.textContent = "Name: " + service.name;
+            providerInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Description: " + service.description;
+            providerInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Authentication Method:" + service.proxy.authentication_method;
+            providerInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Production Endpoint:" + service.proxy.endpoint
+            providerInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Staging Endpoint:" + service.proxy.sandbox_endpoint
+            providerInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "OIDC Issuer Endpoint:" + url
+            providerInfo.appendChild(li);
+            providerInfoDiv.appendChild(providerInfo);
+        }
+
+        function showApplicationInfo(json) {
+            var appInfoDiv = document.getElementById("application_info");
+            var appInfo = document.createElement("ul");
+            var li = document.createElement("li"); li.textContent = "Name: " + json.name;
+            appInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Client ID: " + json.client_id;
+            appInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Standard flow enabled:" + json.oidc_configuration.standard_flow_enabled;
+            appInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Implicit flow enabled:" + json.oidc_configuration.implicit_flow_enabled
+            appInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Service account enabled:" + json.oidc_configuration.service_accounts_enabled
+            appInfo.appendChild(li);
+            li = document.createElement("li"); li.textContent = "Direct access grants enabled:" + json.oidc_configuration.direct_access_grants_enabled
+            appInfo.appendChild(li);
+            appInfoDiv.appendChild(appInfo);
+        }
+
+        function showOidcInfo(json) {
+            var oidcResponseDiv = document.getElementById("oidc_response");
+            var token = document.createElement("p");
+            token.textContent = json.oidc_access_token;
+            oidcResponseDiv.appendChild(token);
+            var decoded = document.createElement("pre");
+            decoded.textContent = JSON.stringify(json.access_token_decoded, null, 2);
+            oidcResponseDiv.appendChild(decoded);
+
+        }
+
+        function show3scaleGatewayResponse(json) {
+            var gatewayResponseDiv = document.getElementById("gateway_response");
+            var codeArea = document.createElement("pre");
+            var response = document.createTextNode(JSON.stringify(json, null, 2));
+            codeArea.appendChild(response);
+            gatewayResponseDiv.appendChild(codeArea);
+        }
+
+        function restoreInfoFromSession() {
+            restoreApiProviderInfo();
+            restoreApiDeveloperInfo();
+            restoreEndUserInfo();
+        }
+
+        function restoreApiProviderInfo() {
+            var destination = "/api/session/api_provider";
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    if (json.domain && json.access_token) {
+                        document.getElementById("url").value = json.domain;
+                        document.getElementById("token").value = json.access_token;
+                    }
+                    if (json.service_list) {
+                        createProductList(json.service_list);
+                    }
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function restoreApiDeveloperInfo() {
+            var destination = "/api/session/api_developer";
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    if (json.application_list) {
+                        createApplicationList(json.application_list);
+                    }
+                    if (json.application_selected) {
+                        showApplicationInfo(json.application_selected);
+                        var apiProviderSection = document.getElementById("api_provider_section");
+                        apiProviderSection.classList.add("set");
+                        apiProviderSection.classList.remove("focused");
+                        document.getElementById("api_provider_service_list_section").classList.add("set");
+                        document.getElementById("api_developer_section").classList.add("set");
+                        document.getElementById("end_user_section").classList.add("focused");
+                    }
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+        function restoreEndUserInfo() {
+
+            var destination = "/api/session/end_user";
+            fetch(destination).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+                .then((json) => {
+                    console.log(json)
+                    if (json.oidc_access_token) {
+                        showOidcInfo(json);
+                    }
+                })
+                .catch((reason) => {
+                    console.log(reason)
+                });
+        }
+
+    </script>
+</body>
+
+</html>

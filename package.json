@@ -1,0 +1,20 @@
+{
+  "name": "3scale-oidc-client-proto",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Takayuki Konishi",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jwt-decode": "^3.0.0",
+    "openid-client": "^4.2.0",
+    "request": "^2.88.2"
+  }
+}

@@ -1,0 +1,7 @@
+div.focused {
+    border-style: solid;
+    border-color: darkorange;
+}
+div.set {
+    background-color: grey;
+}
