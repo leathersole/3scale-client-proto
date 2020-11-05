@@ -1,5 +1,5 @@
 {
-  "name": "3scale-oidc-client-proto",
+  "name": "3scale-client-proto",
   "version": "0.1.0",
   "description": "",
   "main": "src/index.js",

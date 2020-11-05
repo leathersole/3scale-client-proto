@@ -1,0 +1,72 @@
+= A prototype of 3scale client
+
+The purposes of this project are:
+
+* Test whether a 3scale product is integrated with a OIDC IdP.
+* Be illustrative how 3scale API gateway, IdP and client interact.
+
+== Features
+
+* Pull products and aplications list from 3scale Management API
+* Login to OpenID Connect Identity Provider
+* Request to 3scale API gateway
+
+=== What does not this project do?
+
+* This project doesn't aim to perform complex interaction with 3scale API Gateway. You can use link:https://www.postman.com/[Postman] for the purpose.
+
+=== Limitations
+
+* This project is just a prototype. There's no error handling or no test code. If there is a need, we may create a client that is easier to use based on the user's opinion.
+
+== Tested environments
+
+* This project is tested on link:https://nodejs.org/en/[Node.js] 14.3.0
+* Target Services
+** link:https://www.3scale.net/[3scale SaaS]
+** link:https://access.redhat.com/products/red-hat-single-sign-on[Red Hat Single Sign-On] 7.2
+
+== Installation
+
+....
+git clone https://github.com/leathersole/3scale-client-proto.git
+cd 3scale-client-proto
+npm install
+....
+
+== How to use
+
+=== Prerequisites
+
+. RH-SSO
+. A 3scale Product that authentication method is OIDC
+. A 3scale Application under the Product that Redirect URL is `http://localhost:3000/api_provider/oidc_auth/cb`
+
+=== Procedure
+
+. Start application
++
+....
+npm start
+....
++
+. Open http://localhost:3000/api_provider/
+. Enter your admin portal domain and access token
+. Click `Get Product list` button
+. After Products menu is created, select a product that authentication method is OIDC
+. Click `Use this product` button
+. After Applications menu is created, select an application
+. Click `Use this application` button
+. To login to OIDC IdP, click `Login` button
+. Login to IdP. You'll be redirected to the the api_provider page
+. Click `Submit` button to call a 3scale API gateway.
+
+== Future Plan
+
+* Containerize
+* Running on OpenShift
+
+== License
+
+This project is made availabe under the Apache-2.0 License.
+
