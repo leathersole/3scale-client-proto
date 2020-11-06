@@ -4,7 +4,7 @@ const app = express()
 const port = 3000
 var session = require('express-session')
 
-const TreeScaleManagementApi = require('./3scale_manaement_api/3scale_management_api.js');
+const TreeScaleManagementApi = require('./3scale_management_api/3scale_management_api.js');
 const ApiProvder = require('./3scale_api_prodiver/api_provider.js');
 const SessionUtil = require('./util/session_util.js');
 
