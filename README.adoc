@@ -26,30 +26,30 @@ The purposes of this project are:
 ** link:https://www.3scale.net/[3scale SaaS]
 ** link:https://access.redhat.com/products/red-hat-single-sign-on[Red Hat Single Sign-On] 7.2
 
-== Installation
-
-....
-git clone https://github.com/leathersole/3scale-client-proto.git
-cd 3scale-client-proto
-npm install
-....
-
-== How to use
-
-=== Prerequisites
-
+== Prerequisites
 . RH-SSO
 . A 3scale Product that authentication method is OIDC
 . A 3scale Application under the Product that Redirect URL is `http://localhost:3000/api_provider/oidc_auth/cb`
 
-=== Procedure
-
-. Start application
-+
+== Installation
+=== npm
 ....
+git clone https://github.com/leathersole/3scale-client-proto.git
+cd 3scale-client-proto
+npm install
 npm start
 ....
-+
+=== Docker
+....
+docker pull leathersole/3scale-client-proto:latest
+docker run --rm -p 3000:3000 leathersole/3scale-client-proto:latest
+....
+=== Podman
+....
+podman pull docker.io/leathersole/3scale-client-proto:latest
+podman run --rm -p 3000:3000 docker.io/leathersole/3scale-client-proto:latest
+....
+== Usage
 . Open http://localhost:3000/api_provider/
 . Enter your admin portal domain and access token
 . Click `Get Product list` button
@@ -61,12 +61,11 @@ npm start
 . Login to IdP. You'll be redirected to the the api_provider page
 . Click `Submit` button to call a 3scale API gateway.
 
-== Future Plan
-
-* Containerize
-* Running on OpenShift
-
+== Build container
+....
+cd ./buildah
+buildah login registry.redhat.io
+buildah unshare ./build.sh
+....
 == License
-
 This project is made availabe under the Apache-2.0 License.
-
