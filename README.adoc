@@ -14,6 +14,7 @@ The purposes of this project are:
 === What does not this project do?
 
 * This project doesn't aim to perform complex interaction with 3scale API Gateway. You can use link:https://www.postman.com/[Postman] for the purpose.
+* Checking secureness is out of scope. i.e. This application logs information like access tokens, and this doesn't check TLS certificates.
 
 === Limitations
 

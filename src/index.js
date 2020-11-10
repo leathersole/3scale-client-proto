@@ -12,6 +12,8 @@ const threeScaleManagementApi = new TreeScaleManagementApi();
 const apiProvider = new ApiProvder();
 const sessionUtil = new SessionUtil();
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+
 app.use(session({
   secret: 'keyboard cat',
   resave: true,
