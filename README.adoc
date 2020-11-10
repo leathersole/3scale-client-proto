@@ -23,7 +23,9 @@ The purposes of this project are:
 
 * This project is tested on link:https://nodejs.org/en/[Node.js] 14.3.0
 * Target Services
-** link:https://www.3scale.net/[3scale SaaS]
+** link:https://access.redhat.com/products/red-hat-3scale[Red Hat 3scale API Management]
+*** link:https://www.3scale.net/[SaaS]
+*** 2.9 On-premises
 ** link:https://access.redhat.com/products/red-hat-single-sign-on[Red Hat Single Sign-On] 7.2
 
 == Prerequisites
@@ -68,4 +70,4 @@ buildah login registry.redhat.io
 buildah unshare ./build.sh
 ....
 == License
-This project is made availabe under the Apache-2.0 License.
+This project is made available under the Apache-2.0 License.

@@ -11,7 +11,11 @@ class ThreeScaleManagementApi {
             req.session.domain = queryObject.url;
             req.session.access_token = queryObject.access_token;
             var destination = req.session.domain + "/admin/api/services.json?access_token=" + req.session.access_token;
-            request(destination, (error, response, body) => {
+            var options = {
+                url: destination,
+                strictSSL: false,
+            }
+            request(options, (error, response, body) => {
                 if (error !== null) {
                     console.error('error:', error);
                     return (false);
@@ -30,7 +34,11 @@ class ThreeScaleManagementApi {
         req.session.service_id = serviceId;
         req.session.enviromnent = enviromnent;
         var destination = req.session.domain + "/admin/api/services/" + req.session.service_id + "/proxy/configs/" + req.session.enviromnent + "/latest.json?access_token=" + req.session.access_token;
-        request(destination, (error, response, body) => {
+        var options = {
+            url: destination,
+            strictSSL: false,
+        }
+        request(options, (error, response, body) => {
             if (error !== null) {
                 console.error('error:', error);
                 return (false);
@@ -56,7 +64,11 @@ class ThreeScaleManagementApi {
         const queryObject = url.parse(req.url, true).query;
         req.session.service_id = queryObject.service_id;
         var destination = req.session.domain + "/admin/api/applications.json?access_token=" + req.session.access_token + "&per_page=500&service_id=" + req.session.service_id;
-        request(destination, (error, response, body) => {
+        var options = {
+            url: destination,
+            strictSSL: false,
+        }
+        request(options, (error, response, body) => {
             if (error !== null) {
                 console.error('error:', error);
                 return (false);

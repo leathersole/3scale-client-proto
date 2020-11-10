@@ -70,6 +70,7 @@ class ApiProvider {
     call3scaleGateway = function (req, res) {
         const options = {
             url: req.session.staging_endpoint,
+            strictSSL: false,
             headers: {
                 'Authorization': 'Bearer ' + req.session.oidc_access_token
             }
