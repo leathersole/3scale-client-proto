@@ -75,13 +75,15 @@
     </div>
 
     <script type="text/javascript">
+        const SectionState = {
+            NotSet: 0,
+            Focused: 1,
+            Set: 2
+        }
 
         function getServiceList() {
-            document.getElementById("get_service_list").disabled = true;
-            var apiProviderSection = document.getElementById("api_provider_section");
-            apiProviderSection.classList.add("set");
-            apiProviderSection.classList.remove("focused");
-            document.getElementById("api_provider_service_list_section").classList.add("focused")
+            setApiProviderInfoView(SectionState.Set);
+            setServiceListView(SectionState.Focused);
             var url = document.getElementById("url").value;
             var token = document.getElementById("token").value;
             var destination = "/admin/api/services.json?url=" + url + "&access_token=" + token;
@@ -101,12 +103,8 @@
         }
 
         function getProxyConfigLatest(environment) {
-            document.getElementById("use_this_product").disabled = true;
-            var serviceListSection = document.getElementById("api_provider_service_list_section");
-            serviceListSection.classList.add("set");
-            serviceListSection.classList.remove("focused");
-            document.getElementById("api_developer_section").classList.add("focused");
-
+            setServiceListView(SectionState.Set);
+            setApiDeveloperView(SectionState.Focused);
 
             var list = document.getElementById("serviceMenu");
             var serviceId = list.value;
@@ -147,11 +145,8 @@
         }
 
         function selectApplication() {
-            document.getElementById("use_this_application").disabled = true;
-            var apiDeveloperSection = document.getElementById("api_developer_section");
-            apiDeveloperSection.classList.add("set");
-            apiDeveloperSection.classList.remove("focused");
-            document.getElementById("end_user_section").classList.add("focused");
+            setApiDeveloperView(SectionState.Set);
+            setEndUserView(SectionState.Focused);
 
             var list = document.getElementById("appMenu");
             var appId = list.value;
@@ -339,12 +334,10 @@
                     }
                     if (json.application_selected) {
                         showApplicationInfo(json.application_selected);
-                        var apiProviderSection = document.getElementById("api_provider_section");
-                        apiProviderSection.classList.add("set");
-                        apiProviderSection.classList.remove("focused");
-                        document.getElementById("api_provider_service_list_section").classList.add("set");
-                        document.getElementById("api_developer_section").classList.add("set");
-                        document.getElementById("end_user_section").classList.add("focused");
+                        setApiProviderInfoView(SectionState.Set);
+                        setServiceListView(SectionState.Set);
+                        setApiDeveloperView(SectionState.Set);
+                        setEndUserView(SectionState.Focused);
                     }
                 })
                 .catch((reason) => {
@@ -372,6 +365,76 @@
                 });
         }
 
+        function setApiProviderInfoView(state) {
+            var apiProviderSection = document.getElementById("api_provider_section");
+            if (state == SectionState.Focused) {
+                document.getElementById("get_service_list").disabled = false;
+                apiProviderSection.classList.add("focused");
+                apiProviderSection.classList.remove("set");
+            } else if (state == SectionState.Set) {
+                document.getElementById("get_service_list").disabled = true;
+                apiProviderSection.classList.add("set");
+                apiProviderSection.classList.remove("focused");
+            } else { //state == SectionState.NotSet
+                document.getElementById("get_service_list").disabled = true;
+                apiProviderSection.classList.remove("set");
+                apiProviderSection.classList.remove("focused");
+            }
+        }
+
+        function setServiceListView(state) {
+            var serviceListSection = document.getElementById("api_provider_service_list_section");
+            if (state == SectionState.Focused) {
+                document.getElementById("use_this_product").disabled = false;
+                serviceListSection.classList.remove("set");
+                serviceListSection.classList.add("focused");
+            } else if (state == SectionState.Set) {
+                document.getElementById("use_this_product").disabled = true;
+                serviceListSection.classList.add("set");
+                serviceListSection.classList.remove("focused");
+            } else { //state == SectionState.NotSet
+                document.getElementById("use_this_product").disabled = true;
+                serviceListSection.classList.remove("set");
+                serviceListSection.classList.remove("focused");
+            }
+        }
+
+        function setApiDeveloperView(state) {
+            var apiDeveloperSection = document.getElementById("api_developer_section");
+            if (state == SectionState.Focused) {
+                document.getElementById("use_this_application").disabled = false;
+                apiDeveloperSection.classList.remove("set");
+                apiDeveloperSection.classList.add("focused");
+            } else if (state == SectionState.Set) {
+                document.getElementById("use_this_application").disabled = true;
+                apiDeveloperSection.classList.add("set");
+                apiDeveloperSection.classList.remove("focused");
+            } else { //state == SectionState.NotSet
+                document.getElementById("use_this_application").disabled = true;
+                apiDeveloperSection.classList.remove("set");
+                apiDeveloperSection.classList.remove("focused");
+            }
+        }
+
+        function setEndUserView(state){
+            const endUserSection = document.getElementById("end_user_section");
+            if (state == SectionState.Focused) {
+                document.getElementById("login").disabled = false;
+                document.getElementById("gateway_response").disabled = false;
+                endUserSection.classList.remove("set");
+                endUserSection.classList.add("focused");                
+            } else if (state == SectionState.Set) {
+                document.getElementById("login").disabled = true;
+                document.getElementById("gateway_response").disabled = true;
+                endUserSection.classList.add("set");
+                endUserSection.classList.remove("focused");    
+            } else { //state == SectionState.NotSet
+                document.getElementById("login").disabled = true;
+                document.getElementById("gateway_response").disabled = true;
+                endUserSection.classList.remove("set");
+                endUserSection.classList.remove("focused");    
+            }
+        }
     </script>
 </body>
 
