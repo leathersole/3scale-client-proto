@@ -7,9 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="3scale client examples">
     <title>API Provider</title>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/base-min.css">
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-nr-min.css">
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 
@@ -22,7 +20,7 @@
                 <h3>Enter API Provider Information</h3>
                 <p><label>URL:</label> <input type="text" id="url"><br>example: https://user-admin.3scale.net</p>
                 <p><label>Access Token:</label> <input type="text" id="token"></p>
-                <button id="get_service_list" onclick="getServiceList()">Get Product List</button>
+                <button id="get_service_list" class="pure-button pure-button-primary" onclick="getServiceList()">Get Product List</button>
             </div>
             <div id="api_provider_info" class="pure-u-1-2"></div>
         </div>
@@ -30,7 +28,7 @@
             <div id="api_provider_service_list" class="pure-u-1-2">
                 <h3>Select Product</h3>
                 <div id="serviceList"></div>
-                <button id="use_this_product" onclick="getProxyConfigLatest('sandbox')">Use this product</button>
+                <button id="use_this_product" class="pure-button" onclick="getProxyConfigLatest('sandbox')">Use this product</button>
             </div>
             <div id="api_provider_service_info" class="pure-u-1-2"></div>
         </div>
@@ -41,7 +39,7 @@
             <div id="api_developer_app_list">
                 <h3>Select Application</h3>
                 <div id="appList"></div>
-                <button id="use_this_application" onclick="selectApplication()">Use this application</button>
+                <button id="use_this_application" class="pure-button" onclick="selectApplication()">Use this application</button>
             </div>
         </div>
         <div id="application_info" class="pure-u-1-2"></div>
@@ -52,7 +50,7 @@
         <div id="end_user_oidc_login" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Login to IdP</h3>
-                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" value="Login">
+                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" class="pure-button" value="Login">
                 </form>
                 <p>for now, supported flow is &quot;Authorization Code Flow&quot; only.</p>
             </div>
@@ -61,7 +59,7 @@
         <div id="end_user_call_3scale" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Call 3scale Gateway</h3>
-                <button id="call_3scale_gateway" onclick="call3scaleGateway()">Submit</button>
+                <button id="call_3scale_gateway" class="pure-button" onclick="call3scaleGateway()">Submit</button>
                 <p>for now, supported method/path is &quot;GET /&quot; only. Supported environment is staging(sandbox)
                     only.</p>
             </div>
@@ -369,73 +367,93 @@
         }
 
         function setApiProviderInfoView(state) {
-            var apiProviderSection = document.getElementById("api_provider_section");
+            var classList = document.getElementById("api_provider_section").classList;
+            var button = document.getElementById("get_service_list");
             if (state == SectionState.Focused) {
-                document.getElementById("get_service_list").disabled = false;
-                apiProviderSection.classList.add("focused");
-                apiProviderSection.classList.remove("set");
+                button.disabled = false;
+                button.classList.add("pure-button-primary");
+                classList.add("focused");
+                classList.remove("set");
             } else if (state == SectionState.Set) {
-                document.getElementById("get_service_list").disabled = true;
-                apiProviderSection.classList.add("set");
-                apiProviderSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.add("set");
+                classList.remove("focused");
             } else { //state == SectionState.NotSet
-                document.getElementById("get_service_list").disabled = true;
-                apiProviderSection.classList.remove("set");
-                apiProviderSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.remove("set");
+                classList.remove("focused");
             }
         }
 
         function setServiceListView(state) {
-            var serviceListSection = document.getElementById("api_provider_service_list_section");
+            var classList = document.getElementById("api_provider_service_list_section").classList;
+            var button = document.getElementById("use_this_product");
             if (state == SectionState.Focused) {
-                document.getElementById("use_this_product").disabled = false;
-                serviceListSection.classList.remove("set");
-                serviceListSection.classList.add("focused");
+                button.disabled = false;
+                button.classList.add("pure-button-primary");
+                classList.remove("set");
+                classList.add("focused");
             } else if (state == SectionState.Set) {
-                document.getElementById("use_this_product").disabled = true;
-                serviceListSection.classList.add("set");
-                serviceListSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.add("set");
+                classList.remove("focused");
             } else { //state == SectionState.NotSet
-                document.getElementById("use_this_product").disabled = true;
-                serviceListSection.classList.remove("set");
-                serviceListSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.remove("set");
+                classList.remove("focused");
             }
         }
 
         function setApiDeveloperView(state) {
-            var apiDeveloperSection = document.getElementById("api_developer_section");
+            var classList = document.getElementById("api_developer_section").classList;
+            var button = document.getElementById("use_this_application");
             if (state == SectionState.Focused) {
-                document.getElementById("use_this_application").disabled = false;
-                apiDeveloperSection.classList.remove("set");
-                apiDeveloperSection.classList.add("focused");
+                button.disabled = false;
+                button.classList.add("pure-button-primary");
+                classList.remove("set");
+                classList.add("focused");
             } else if (state == SectionState.Set) {
-                document.getElementById("use_this_application").disabled = true;
-                apiDeveloperSection.classList.add("set");
-                apiDeveloperSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.add("set");
+                classList.remove("focused");
             } else { //state == SectionState.NotSet
-                document.getElementById("use_this_application").disabled = true;
-                apiDeveloperSection.classList.remove("set");
-                apiDeveloperSection.classList.remove("focused");
+                button.disabled = true;
+                button.classList.remove("pure-button-primary");
+                classList.remove("set");
+                classList.remove("focused");
             }
         }
 
         function setEndUserView(state){
-            const endUserSection = document.getElementById("end_user_section");
+            const classList = document.getElementById("end_user_section").classList;
+            var loginButton = document.getElementById("login");
+            var gatewayButton = document.getElementById("call_3scale_gateway");
             if (state == SectionState.Focused) {
-                document.getElementById("login").disabled = false;
-                document.getElementById("gateway_response").disabled = false;
-                endUserSection.classList.remove("set");
-                endUserSection.classList.add("focused");                
+                loginButton.disabled = false;
+                gatewayButton.disabled = false;
+                loginButton.classList.add("pure-button-primary");
+                gatewayButton.classList.add("pure-button-primary");
+                classList.remove("set");
+                classList.add("focused");                
             } else if (state == SectionState.Set) {
-                document.getElementById("login").disabled = true;
-                document.getElementById("gateway_response").disabled = true;
-                endUserSection.classList.add("set");
-                endUserSection.classList.remove("focused");    
+                loginButton.disabled = true;
+                gatewayButton.disabled = true;
+                loginButton.classList.remove("pure-button-primary");
+                gatewayButton.classList.remove("pure-button-primary");
+                classList.add("set");
+                classList.remove("focused");    
             } else { //state == SectionState.NotSet
-                document.getElementById("login").disabled = true;
-                document.getElementById("gateway_response").disabled = true;
-                endUserSection.classList.remove("set");
-                endUserSection.classList.remove("focused");    
+                loginButton.disabled = true;
+                gatewayButton.disabled = true;
+                loginButton.classList.remove("pure-button-primary");
+                gatewayButton.classList.remove("pure-button-primary");
+                classList.remove("set");
+                classList.remove("focused");    
             }
         }
     </script>
