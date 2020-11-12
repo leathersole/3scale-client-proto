@@ -6,7 +6,7 @@ class SessionUtil {
             domain: req.session.domain,
             access_token: req.session.access_token,
             service_list: req.session.service_list,
-            service_selected: req.session.service_id,
+            service_selected: req.session.service_selected,
             environment: req.session.enviromnent,
             oidc_issuer_realm: req.session.oidc_issuer_realm,
             staging_endpoint: req.session.staging_endpoint,

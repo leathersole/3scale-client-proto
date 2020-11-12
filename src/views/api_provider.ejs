@@ -313,6 +313,9 @@
                     if (json.service_list) {
                         createProductList(json.service_list);
                     }
+                    if (json.service_selected){
+                        showServiceInfo(json.service_selected);
+                    }
                 })
                 .catch((reason) => {
                     console.log(reason)

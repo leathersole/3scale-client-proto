@@ -56,6 +56,7 @@ class ThreeScaleManagementApi {
             }
             req.session.staging_endpoint = serviceConfig.proxy_config.content.proxy.sandbox_endpoint;
             req.session.endpoint = serviceConfig.proxy_config.content.proxy.endpoint;
+            req.session.service_selected = serviceConfig;
             res.send(body);
         });
     }
