@@ -28,7 +28,7 @@
             <div id="api_provider_service_list" class="pure-u-1-2">
                 <h3>Select Product</h3>
                 <div id="serviceList"></div>
-                <button id="use_this_product" class="pure-button" onclick="getProxyConfigLatest('sandbox')">Use this product</button>
+                <button id="use_this_product" class="pure-button" onclick="getProxyConfigLatest('sandbox')" disabled>Use this product</button>
             </div>
             <div id="api_provider_service_info" class="pure-u-1-2"></div>
         </div>
@@ -39,7 +39,7 @@
             <div id="api_developer_app_list">
                 <h3>Select Application</h3>
                 <div id="appList"></div>
-                <button id="use_this_application" class="pure-button" onclick="selectApplication()">Use this application</button>
+                <button id="use_this_application" class="pure-button" onclick="selectApplication()" disabled>Use this application</button>
             </div>
         </div>
         <div id="application_info" class="pure-u-1-2"></div>
@@ -50,7 +50,7 @@
         <div id="end_user_oidc_login" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Login to IdP</h3>
-                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" class="pure-button" value="Login">
+                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" class="pure-button" value="Login" disabled>
                 </form>
                 <p>for now, supported flow is &quot;Authorization Code Flow&quot; only.</p>
             </div>
@@ -59,7 +59,7 @@
         <div id="end_user_call_3scale" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Call 3scale Gateway</h3>
-                <button id="call_3scale_gateway" class="pure-button" onclick="call3scaleGateway()">Submit</button>
+                <button id="call_3scale_gateway" class="pure-button" onclick="call3scaleGateway()" disabled>Submit</button>
                 <p>for now, supported method/path is &quot;GET /&quot; only. Supported environment is staging(sandbox)
                     only.</p>
             </div>
@@ -81,12 +81,12 @@
 
         function getServiceList() {
             setApiProviderInfoView(SectionState.Set);
-            setServiceListView(SectionState.Focused);
             var url = document.getElementById("url").value;
             var token = document.getElementById("token").value;
             var destination = "/admin/api/services.json?url=" + url + "&access_token=" + token;
             fetch(destination).then((response) => {
                 if (!response.ok) {
+                    setApiProviderInfoView(SectionState.Focused);
                     throw new Error();
                 }
                 return response.json();
@@ -94,21 +94,22 @@
                 .then((json) => {
                     console.log(json);
                     createProductList(json);
+                    setServiceListView(SectionState.Focused);
                 })
                 .catch((reason) => {
+                    setApiProviderInfoView(SectionState.Focused);
                     console.log(reason)
                 });
         }
 
         function getProxyConfigLatest(environment) {
             setServiceListView(SectionState.Set);
-            setApiDeveloperView(SectionState.Focused);
-
             var list = document.getElementById("serviceMenu");
             var serviceId = list.value;
             var destination = "/admin/api/services/" + serviceId + "/proxy/configs/" + environment + "/latest.json";
             fetch(destination).then((response) => {
                 if (!response.ok) {
+                    setServiceListView(SectionState.Focused);
                     throw new Error();
                 }
                 return response.json();
@@ -117,9 +118,11 @@
                     console.log(json);
                     showServiceInfo(json);
                     checkPorductConfigLatest(json);
+                    setApiDeveloperView(SectionState.Focused);
                 })
                 .catch((reason) => {
                     console.log(reason)
+                    setServiceListView(SectionState.Focused);
                 });
         }
 
@@ -144,13 +147,12 @@
 
         function selectApplication() {
             setApiDeveloperView(SectionState.Set);
-            setEndUserView(SectionState.Focused);
-
             var list = document.getElementById("appMenu");
             var appId = list.value;
             var destination = "/api/application/" + appId;
             fetch(destination, { method: 'PUT' }).then((response) => {
                 if (!response.ok) {
+                    setApiDeveloperView(SectionState.Focused);
                     throw new Error();
                 }
                 return response.json();
@@ -158,8 +160,10 @@
                 .then((json) => {
                     console.log(json)
                     showApplicationInfo(json)
+                    setEndUserView(SectionState.Focused);
                 })
                 .catch((reason) => {
+                    setApiDeveloperView(SectionState.Focused);
                     console.log(reason)
                 });
         }
