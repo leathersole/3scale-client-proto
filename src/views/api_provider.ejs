@@ -20,7 +20,8 @@
                 <h3>Enter API Provider Information</h3>
                 <p><label>URL:</label> <input type="text" id="url"><br>example: https://user-admin.3scale.net</p>
                 <p><label>Access Token:</label> <input type="text" id="token"></p>
-                <button id="get_service_list" class="pure-button pure-button-primary" onclick="getServiceList()">Get Product List</button>
+                <button id="get_service_list" class="pure-button pure-button-primary" onclick="getServiceList()">Get
+                    Product List</button>
             </div>
             <div id="api_provider_info" class="pure-u-1-2"></div>
         </div>
@@ -28,7 +29,8 @@
             <div id="api_provider_service_list" class="pure-u-1-2">
                 <h3>Select Product</h3>
                 <div id="serviceList"></div>
-                <button id="use_this_product" class="pure-button" onclick="getProxyConfigLatest('sandbox')" disabled>Use this product</button>
+                <button id="use_this_product" class="pure-button" onclick="getProxyConfigLatest('sandbox')" disabled>Use
+                    this product</button>
             </div>
             <div id="api_provider_service_info" class="pure-u-1-2"></div>
         </div>
@@ -39,7 +41,8 @@
             <div id="api_developer_app_list">
                 <h3>Select Application</h3>
                 <div id="appList"></div>
-                <button id="use_this_application" class="pure-button" onclick="selectApplication()" disabled>Use this application</button>
+                <button id="use_this_application" class="pure-button" onclick="selectApplication()" disabled>Use this
+                    application</button>
             </div>
         </div>
         <div id="application_info" class="pure-u-1-2"></div>
@@ -50,7 +53,8 @@
         <div id="end_user_oidc_login" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Login to IdP</h3>
-                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" class="pure-button" value="Login" disabled>
+                <form action="/api_provider/oidc_auth" method="post"><input id="login" type="submit" class="pure-button"
+                        value="Login" disabled>
                 </form>
                 <p>for now, supported flow is &quot;Authorization Code Flow&quot; only.</p>
             </div>
@@ -59,7 +63,8 @@
         <div id="end_user_call_3scale" class="pure-g">
             <div class="pure-u-1-2">
                 <h3>Call 3scale Gateway</h3>
-                <button id="call_3scale_gateway" class="pure-button" onclick="call3scaleGateway()" disabled>Submit</button>
+                <button id="call_3scale_gateway" class="pure-button" onclick="call3scaleGateway()"
+                    disabled>Submit</button>
                 <p>for now, supported method/path is &quot;GET /&quot; only. Supported environment is staging(sandbox)
                     only.</p>
             </div>
@@ -71,7 +76,7 @@
         (Not implemented) Export client information, oidc authentication and call to 3scale gateway as a Postman script:
         <button disabled>submit</button>
     </div>
-
+    <script type="text/javascript" src="/js/client.js"></script>
     <script type="text/javascript">
         const SectionState = {
             NotSet: 0,
@@ -299,75 +304,41 @@
         }
 
         function restoreApiProviderInfo() {
-            var destination = "/api/session/api_provider";
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    throw new Error();
+            session.getApiProviderInfo().then((json) => {
+                if (json.domain && json.access_token) {
+                    document.getElementById("url").value = json.domain;
+                    document.getElementById("token").value = json.access_token;
                 }
-                return response.json();
+                if (json.service_list) {
+                    createProductList(json.service_list);
+                }
+                if (json.service_selected) {
+                    showServiceInfo(json.service_selected);
+                }
             })
-                .then((json) => {
-                    console.log(json)
-                    if (json.domain && json.access_token) {
-                        document.getElementById("url").value = json.domain;
-                        document.getElementById("token").value = json.access_token;
-                    }
-                    if (json.service_list) {
-                        createProductList(json.service_list);
-                    }
-                    if (json.service_selected){
-                        showServiceInfo(json.service_selected);
-                    }
-                })
-                .catch((reason) => {
-                    console.log(reason)
-                });
         }
 
         function restoreApiDeveloperInfo() {
-            var destination = "/api/session/api_developer";
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    throw new Error();
+            session.getApiDeveloperInfo().then((json) => {
+                if (json.application_list) {
+                    createApplicationList(json.application_list);
                 }
-                return response.json();
+                if (json.application_selected) {
+                    showApplicationInfo(json.application_selected);
+                    setApiProviderInfoView(SectionState.Set);
+                    setServiceListView(SectionState.Set);
+                    setApiDeveloperView(SectionState.Set);
+                    setEndUserView(SectionState.Focused);
+                }
             })
-                .then((json) => {
-                    console.log(json)
-                    if (json.application_list) {
-                        createApplicationList(json.application_list);
-                    }
-                    if (json.application_selected) {
-                        showApplicationInfo(json.application_selected);
-                        setApiProviderInfoView(SectionState.Set);
-                        setServiceListView(SectionState.Set);
-                        setApiDeveloperView(SectionState.Set);
-                        setEndUserView(SectionState.Focused);
-                    }
-                })
-                .catch((reason) => {
-                    console.log(reason)
-                });
         }
 
         function restoreEndUserInfo() {
-
-            var destination = "/api/session/end_user";
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    throw new Error();
+            session.getEndUserInfo().then((json) => {
+                if (json) {
+                    showOidcInfo(json);
                 }
-                return response.json();
-            })
-                .then((json) => {
-                    console.log(json)
-                    if (json.oidc_access_token) {
-                        showOidcInfo(json);
-                    }
-                })
-                .catch((reason) => {
-                    console.log(reason)
-                });
+            });
         }
 
         function setApiProviderInfoView(state) {
@@ -433,7 +404,7 @@
             }
         }
 
-        function setEndUserView(state){
+        function setEndUserView(state) {
             const classList = document.getElementById("end_user_section").classList;
             var loginButton = document.getElementById("login");
             var gatewayButton = document.getElementById("call_3scale_gateway");
@@ -443,21 +414,21 @@
                 loginButton.classList.add("pure-button-primary");
                 gatewayButton.classList.add("pure-button-primary");
                 classList.remove("set");
-                classList.add("focused");                
+                classList.add("focused");
             } else if (state == SectionState.Set) {
                 loginButton.disabled = true;
                 gatewayButton.disabled = true;
                 loginButton.classList.remove("pure-button-primary");
                 gatewayButton.classList.remove("pure-button-primary");
                 classList.add("set");
-                classList.remove("focused");    
+                classList.remove("focused");
             } else { //state == SectionState.NotSet
                 loginButton.disabled = true;
                 gatewayButton.disabled = true;
                 loginButton.classList.remove("pure-button-primary");
                 gatewayButton.classList.remove("pure-button-primary");
                 classList.remove("set");
-                classList.remove("focused");    
+                classList.remove("focused");
             }
         }
     </script>
