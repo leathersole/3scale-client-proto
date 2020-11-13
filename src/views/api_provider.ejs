@@ -86,61 +86,33 @@
 
         function getServiceList() {
             setApiProviderInfoView(SectionState.Set);
-            var url = document.getElementById("url").value;
-            var token = document.getElementById("token").value;
-            var destination = "/admin/api/services.json?url=" + url + "&access_token=" + token;
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    setApiProviderInfoView(SectionState.Focused);
-                    throw new Error();
-                }
-                return response.json();
-            })
-                .then((json) => {
-                    console.log(json);
-                    createProductList(json);
-                    setServiceListView(SectionState.Focused);
-                })
-                .catch((reason) => {
-                    setApiProviderInfoView(SectionState.Focused);
-                    console.log(reason)
-                });
+            var adminDomain = document.getElementById("url").value;
+            var accessToken = document.getElementById("token").value;
+            threeScaleManagement.getServiceList(adminDomain, accessToken).then((json) => {
+                createProductList(json);
+                setServiceListView(SectionState.Focused);
+            });
         }
 
         function getProxyConfigLatest(environment) {
             setServiceListView(SectionState.Set);
-            var list = document.getElementById("serviceMenu");
-            var serviceId = list.value;
-            var destination = "/admin/api/services/" + serviceId + "/proxy/configs/" + environment + "/latest.json";
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    setServiceListView(SectionState.Focused);
-                    throw new Error();
-                }
-                return response.json();
+            var serviceId = document.getElementById("serviceMenu").value;
+            threeScaleManagement.getProxyConfigLatest(serviceId, environment)
+            .then((json) => {
+                console.log(json);
+                showServiceInfo(json);
+                checkPorductConfigLatest(json);
+                setApiDeveloperView(SectionState.Focused);
             })
-                .then((json) => {
-                    console.log(json);
-                    showServiceInfo(json);
-                    checkPorductConfigLatest(json);
-                    setApiDeveloperView(SectionState.Focused);
-                })
-                .catch((reason) => {
-                    console.log(reason)
-                    setServiceListView(SectionState.Focused);
-                });
+            .catch((reason) => {
+                setApiProviderInfoView(SectionState.Focused);
+                console.log(reason)
+            });
         }
 
         function getApplicationList() {
-            var list = document.getElementById("serviceMenu");
-            var serviceId = list.value;
-            var destination = "/admin/api/applications.json?service_id=" + serviceId;
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    throw new Error();
-                }
-                return response.json();
-            })
+            var serviceId = document.getElementById("serviceMenu").value;
+            threeScaleManagement.getApplicationList(serviceId)
                 .then((json) => {
                     console.log(json)
                     createApplicationList(json)
@@ -152,16 +124,8 @@
 
         function selectApplication() {
             setApiDeveloperView(SectionState.Set);
-            var list = document.getElementById("appMenu");
-            var appId = list.value;
-            var destination = "/api/application/" + appId;
-            fetch(destination, { method: 'PUT' }).then((response) => {
-                if (!response.ok) {
-                    setApiDeveloperView(SectionState.Focused);
-                    throw new Error();
-                }
-                return response.json();
-            })
+            var appId = document.getElementById("appMenu").value;
+            myApp.getApplicationInfo(appId)
                 .then((json) => {
                     console.log(json)
                     showApplicationInfo(json)
@@ -174,13 +138,7 @@
         }
 
         function call3scaleGateway() {
-            var destination = "/api_provider/3scale_gateway";
-            fetch(destination).then((response) => {
-                if (!response.ok) {
-                    throw new Error();
-                }
-                return response.json();
-            })
+            myApp.call3scaleGateway()
                 .then((json) => {
                     console.log(json)
                     show3scaleGatewayResponse(json)
